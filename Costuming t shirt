@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-shirts with Prints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            position: relative;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .privacy {
+            font-size: 12px;
+            color: gray;
+        }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.visible {
+            display: block;
+        }
+        .order {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        .admin-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>T-shirts with Prints</h1>
+    <form id="orderForm" onsubmit="saveOrder(event)">
+        <!-- T-shirt Order Form -->
+        <label for="sizeS">Size S:</label>
+        <input type="number" id="sizeS" name="sizeS" min="0" value="0">
+        
+        <label for="sizeM">Size M:</label>
+        <input type="number" id="sizeM" name="sizeM" min="0" value="0">
+        
+        <label for="sizeL">Size L:</label>
+        <input type="number" id="sizeL" name="sizeL" min="0" value="0">
+        
+        <label for="sizeXL">Size XL:</label>
+        <input type="number" id="sizeXL" name="sizeXL" min="0" value="0">
+
+        <label for="contact">Enter your email, phone number or Facebook name so we can contact you:</label>
+        <input type="text" id="contact" name="contact" placeholder="Email, phone number or Facebook name" required>
+
+        <label for="ideas">Describe your print ideas:</label>
+        <textarea id="ideas" name="ideas" placeholder="Describe your ideas..."></textarea>
+
+        <label for="questions">Questions:</label>
+        <textarea id="questions" name="questions" placeholder="Ask your questions..."></textarea>
+
+        <button type="submit">Submit Order</button>
+    </form>
+
+    <p class="privacy">
+        Privacy: Your data submitted through this form is safe and will only be visible to us. We do not store or share your data with third parties. Submitted information is directly forwarded to our email address and is used solely for purposes related to fulfilling your order.
+    </p>
+
+    <div class="admin-dot" onclick="showAdminSection()"></div>
+
+    <div class="admin-section">
+        <h2>Admin Section</h2>
+        <div id="ordersContainer"></div>
+    </div>
+
+    <script>
+        function saveOrder(event) {
+            event.preventDefault();
+            console.log('Form submitted');
+
+            const sizeS = document.getElementById('sizeS').value;
+            const sizeM = document.getElementById('sizeM').value;
+            const sizeL = document.getElementById('sizeL').value;
+            const sizeXL = document.getElementById('sizeXL').value;
+            const contact = document.getElementById('contact').value;
+            const ideas = document.getElementById('ideas').value;
+            const questions = document.getElementById('questions').value;
+
+            storeOrder(sizeS, sizeM, sizeL, sizeXL, contact, ideas, questions);
+        }
+
+        function storeOrder(sizeS, sizeM, sizeL, sizeXL, contact, ideas, questions) {
+            console.log('Storing order');
+            const order = {
+                sizeS,
+                sizeM,
+                sizeL,
+                sizeXL,
+                contact,
+                ideas,
+                questions,
+                timestamp: new Date().toLocaleString()
+            };
+
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            alert('Thank you for placing your order! We will contact you as soon as possible.');
+            document.getElementById('orderForm').reset();
+        }
+
+        function showAdminSection() {
+            const password = prompt('Enter access password:');
+            if (password === 'admin123') {
+                document.querySelector('.admin-section').classList.add('visible');
+                displayOrders();
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        function displayOrders() {
+            console.log('Displaying orders');
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const ordersContainer = document.getElementById('ordersContainer');
+            ordersContainer.innerHTML = '';
+
+            orders.forEach((order, index) => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'order';
+                orderDiv.innerHTML = `
+                    <p>Size S: ${order.sizeS}</p>
+                    <p>Size M: ${order.sizeM}</p>
+                    <p>Size L: ${order.sizeL}</p>
+                    <p>Size XL: ${order.sizeXL}</p>
+                    <p>Contact: ${order.contact}</p>
+                    <p>Ideas: ${order.ideas}</p>
+                    <p>Questions: ${order.questions}</p>
+                    <p>Submitted: ${order.timestamp}</p>
+                    <button onclick="deleteOrder(${index})">Delete Order</button>
+                `;
+                ordersContainer.appendChild(orderDiv);
+            });
+        }
+
+        function deleteOrder(index) {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.splice(index, 1);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            displayOrders();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded');
+        });
+    </script>
+</body>
+</html>
